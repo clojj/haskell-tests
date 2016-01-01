@@ -31,7 +31,6 @@ ghcParseString targetFile =
             GHC.runGhc (Just libdir) $ do
                 modSum <- prepareGhc targetFile
 
-                -- AST -- ------------------------------------------------------
                 p <- GHC.parseModule modSum
                 liftIO $ putStrLn "parsed"
                 return $ showData Parser 2 $ GHC.pm_parsed_source p
@@ -41,8 +40,6 @@ ghcLexString targetFile =
             GHC.runGhc (Just libdir) $ do
                 modSum <- prepareGhc targetFile
 
-                -- Tokens ------------------------------------------------------
-                -- liftIO $ putStrLn "got ts"
                 rts <- GHC.getRichTokenStream (GHC.ms_mod modSum)
                 liftIO $ putStrLn "got rts"
                 return $ concatMap showTokenWithSource rts
@@ -69,7 +66,6 @@ ghcLex targetFile =
             GHC.runGhc (Just libdir) $ do
                 modSum <- prepareGhc targetFile
 
-                -- Tokens ------------------------------------------------------
                 rts <- GHC.getRichTokenStream (GHC.ms_mod modSum)
                 liftIO $ putStrLn "got rts"
                 liftIO $ putStr $ concatMap showTokenWithSource rts
