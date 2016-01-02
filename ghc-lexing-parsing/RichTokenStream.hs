@@ -5,8 +5,8 @@ import           System.Environment (getArgs)
 import qualified DynFlags           as GHC
 import qualified GHC
 import           GHC.Paths          (libdir)
-import           MonadUtils
 import           GHC.SYB.Utils
+import           MonadUtils
 
 -- ITvocurly ("virtual" braces for layout induced blocks)
 -- ITocurly (real braces for no-layout blocks)
@@ -21,17 +21,15 @@ main = do
                 let dflags' = foldl GHC.xopt_set dflags
                                    [GHC.Opt_Cpp, GHC.Opt_ImplicitPrelude, GHC.Opt_MagicHash]
 
-                    dflags'' = dflags' { GHC.importPaths = ["./test/testdata/","../test/testdata/"] }
+                    -- dflags'' = dflags' { GHC.importPaths = ["./test/testdata/","../test/testdata/"] }
+                    --
+                    -- dflags''' = dflags'' { GHC.hscTarget = GHC.HscInterpreted,
+                    --                        GHC.ghcLink =  GHC.LinkInMemory }
 
-                    dflags''' = dflags'' { GHC.hscTarget = GHC.HscInterpreted,
-                                           GHC.ghcLink =  GHC.LinkInMemory }
-
-                _ <- GHC.setSessionDynFlags dflags'''
-                liftIO $ putStrLn "dflags set"
+                _ <- GHC.setSessionDynFlags dflags'
 
                 target <- GHC.guessTarget targetFile Nothing
                 GHC.setTargets [target]
-                liftIO $ putStrLn "targets set"
                 _ <- GHC.load GHC.LoadAllTargets -- Loads and compiles, much as calling make
                 liftIO $ putStrLn "targets loaded"
 
@@ -40,16 +38,10 @@ main = do
 
                 -- AST -- ------------------------------------------------------
                 p <- GHC.parseModule modSum
-                liftIO $ putStrLn "parsed"
-
                 liftIO $ putStrLn $ showData Parser 2 $ GHC.pm_parsed_source p
 
                 -- Tokens ------------------------------------------------------
-                -- ts <- GHC.getTokenStream (GHC.ms_mod modSum)
-                -- liftIO $ putStrLn "got ts"
                 rts <- GHC.getRichTokenStream (GHC.ms_mod modSum)
-                liftIO $ putStrLn "got rts"
-
                 liftIO $ putStr $ concatMap showTokenWithSource rts
 
 
